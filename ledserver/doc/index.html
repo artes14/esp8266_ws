@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Arduino and ESP32 Websocket</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+  <meta charset='UTF-8'>
+  <style>
+    body {
+      background-color: #0b032d;
+      text-align: center;
+      color:white;
+      font-family:consolas,"Liberation Mono",courier,monospace;
+      padding: 100px;
+      font-stretch: expanded;
+    }
+    button {
+      background-color: #ffb997;
+      border-radius: 10px;
+      padding:5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>POTENTIOMETER : <span id='pot'>-</span></h1>
+  <h1>websocket status : <span id='message'>-</span></h1>
+  <div class="block">
+    <div class="btn-group">
+      <button type='button' name='btn_on' id='BTN_1'>
+        <h1>ON</h1>
+      </button><button type='button' name='btn_off' id='BTN_2'>
+        <h1>OFF</h1>
+      </button>
+    </div>
+  </div>
+  <p><input type='file' id='filename'/>
+    <button type='button' id='BTN_OPEN'><h1>open</h1></button>
+  </p>
+
+
+</body>
+<script>
+  var Socket;
+  document.getElementById('BTN_1').addEventListener('click', button_1_pressed);
+  document.getElementById('BTN_2').addEventListener('click', button_2_pressed);
+  document.getElementById('BTN_OPEN').addEventListener('click', button_open_pressed);
+  function init() {
+    Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
+    Socket.onmessage = function(event) {
+      processCommand(event);
+    };
+  }
+  function processCommand(event) {
+    var obj = JSON.parse(event.data);
+    document.getElementById('message').innerHTML = obj.PIN_Status;
+    document.getElementById('pot').innerHTML = obj.pot;
+    console.log(obj.PIN_Status);
+    console.log(obj.pot);
+  }
+  function button_1_pressed() {
+    Socket.send('1');
+  }
+  function button_2_pressed() {
+    Socket.send('0');
+  }
+  window.onload = function(event) {
+    init();
+  }
+</script>
+</html>
